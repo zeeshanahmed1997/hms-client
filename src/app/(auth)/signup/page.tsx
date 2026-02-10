@@ -77,7 +77,7 @@ export default function SignUpPage() {
 
         <form ref={formRef} className="signup-form">
           {/* Professional Info */}
-          <div>
+          {/* <div>
             <label className="input-group-label">
               <Briefcase size={12} /> Work Details
             </label>
@@ -93,7 +93,7 @@ export default function SignUpPage() {
                 <option value="er">Emergency</option>
               </select>
             </div>
-          </div>
+          </div> */}
 
           {/* Personal Info */}
           <div>
@@ -122,7 +122,10 @@ export default function SignUpPage() {
             <Phone className="icon" size={16} />
             <input name="phoneNumber" type="tel" placeholder="Phone Number" className="input-field" />
           </div>
-
+          <div className="relative-input">
+            <Lock className="icon" size={16} />
+            <input name="address" type="address" placeholder="Address" className="input-field" />
+          </div>
           {/* Security */}
           <div className="relative-input">
             <Lock className="icon" size={16} />

@@ -1,0 +1,149 @@
+/* Hospital Management System - Refined UI */
+:root {
+    --hms-primary: #0d6efd;
+    --hms-bg: #f8fafc;
+    --hms-border: #e2e8f0;
+    --doctor-blue: #e0e7ff;
+    --doctor-text: #4338ca;
+    --admin-purple: #f3e8ff;
+    --admin-text: #7e22ce;
+    --nurse-green: #dcfce7;
+    --nurse-text: #15803d;
+}
+
+.management-container {
+    background-color: var(--hms-bg);
+    min-height: 100vh;
+    font-family: 'Inter', -apple-system, sans-serif;
+}
+
+.main-content {
+    background-color: var(--hms-bg);
+}
+
+.all-users-heading {
+    color: #1e293b;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+
+/* Card Styling */
+.user-card {
+    border: 1px solid var(--hms-border);
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+    width: 100% !important;
+}
+
+/* Search Bar Styling */
+.search-icon {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #94a3b8;
+}
+
+.user-search-bar {
+    border-radius: 8px;
+    border: 1px solid var(--hms-border);
+    padding: 10px 10px 10px 45px !important;
+    transition: all 0.2s;
+}
+
+.user-search-bar:focus {
+    box-shadow: 0 0 0 4px rgba(13, 110, 253, 0.1);
+    border-color: var(--hms-primary);
+}
+
+/* Table Styling */
+.table thead th {
+    background-color: #f1f5f9;
+    color: #475569;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 15px;
+    border-top: none;
+}
+
+.table tbody tr {
+    transition: background-color 0.2s;
+}
+
+.table tbody td {
+    padding: 16px 15px;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Avatar Initials */
+.avatar-placeholder {
+    width: 38px;
+    height: 38px;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Specialized Badges */
+.role-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+}
+
+.badge-doctor { background: var(--doctor-blue); color: var(--doctor-text); }
+.badge-admin { background: var(--admin-purple); color: var(--admin-text); }
+.badge-nurse { background: var(--nurse-green); color: var(--nurse-text); }
+.badge-staff { background: #f1f5f9; color: #475569; }
+
+/* Status Dot */
+.status-dot {
+    height: 8px;
+    width: 8px;
+    background-color: #22c55e;
+    border-radius: 50%;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+/* Action Buttons */
+.action-btn {
+    width: 34px;
+    height: 34px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    transition: all 0.2s;
+    background: #f8fafc;
+    border: 1px solid var(--hms-border);
+}
+
+.btn-edit { color: #0d6efd; }
+.btn-edit:hover { background: #0d6efd; color: white; }
+
+.btn-delete { color: #ef4444; }
+.btn-delete:hover { background: #ef4444; color: white; }
+
+.extra-small {
+    font-size: 0.7rem;
+}
+
+.btn-create {
+    background-color: var(--hms-primary);
+    color: white;
+    border: none;
+    font-weight: 500;
+    padding: 8px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 10px rgba(13, 110, 253, 0.2);
+}

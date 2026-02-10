@@ -6,13 +6,13 @@ import { useAppSelector } from '@/src/redux/hooks';
 import './dashboard.css'; // Import the CSS file for styling
 export default function TopNavbar() {
   const user = useAppSelector(state => state.auth.user || null);    
-  debugger;    
+       
   const displayName = user?.fullName ?? 'Guest';
   const displayRole  = user?.role  ?? 'Visitor';
 //   const avatarUrl    = user?.avatar ?? 'https://via.placeholder.com/40';
 
   return (
-    <nav className="navbar navbar-expand-lg">
+    <nav className="navbar top-nav-bar navbar-expand-lg">
       <div className="container-fluid px-4">
         <button
           className="navbar-toggler d-md-none"

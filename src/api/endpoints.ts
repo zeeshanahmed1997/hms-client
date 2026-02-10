@@ -8,4 +8,7 @@ export const API_ENDPOINTS = {
     me:       `${BASE_URL}/api/Auth/me`,
     refresh:  `${BASE_URL}/api/Auth/refresh`,
   },
+  users:{
+    users : `${BASE_URL}/api/User/users`,
+  }
 } as const;

@@ -1,11 +1,12 @@
-// src/redux/slices/authSlice.ts
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
-import type { FlexibleLoginPayload, LoginFormData } from '../../types/auth/login';
-import type { SignUpFormData, SignUpSuccessResponse } from '../../types/auth/signup';
-import type { AuthUser, AuthState, UserRole } from '../../types/auth/common';
 import { API_ENDPOINTS } from '../../api/endpoints';
 
+import type { AuthState, AuthUser, UserRole } from '../../types/auth/common';
+import type { LoginFormData } from '../../types/auth/login';
+import type { SignUpFormData } from '../../types/auth/signup';
+
+// ────────────────────────────────────────────────
 const initialState: AuthState = {
   user: null,
   token: null,
@@ -14,103 +15,147 @@ const initialState: AuthState = {
   error: null,
 };
 
-export const login = createAsyncThunk<
-  FlexibleLoginPayload,
-  LoginFormData,
-  { rejectValue: { message: string } }
->('auth/login', async (credentials, { rejectWithValue }) => {
-  try {
-    const response = await axios.post(API_ENDPOINTS.auth.login, credentials);
-    return response.data;
-  } catch (err: any) {
-    const message = err.response?.data?.message || 'Login failed.';
-    return rejectWithValue({ message });
-  }
-});
+// ────────────────────────────────────────────────
+// Normalize different possible backend response shapes
+// ────────────────────────────────────────────────
+const normalizeAuthResponse = (payload: any): { token: string | null; user: AuthUser | null } => {
+  const token = payload.token ?? payload.accessToken ?? payload.jwt ?? null;
 
-export const signup = createAsyncThunk<
-  SignUpSuccessResponse,
-  SignUpFormData,
-  { rejectValue: { message: string } }
->('auth/signup', async (userData, { rejectWithValue }) => {
-  try {
-    debugger;
-    const response = await axios.post(API_ENDPOINTS.auth.register, userData);
-    return response.data;
-  } catch (err: any) {
-    debugger;
-    const message = err.response?.data?.message || 'Signup failed.';
-    return rejectWithValue({ message });
-  }
-});
+  const rawUser = payload.user ?? payload.data?.user ?? {};
+  if (!rawUser.id) return { token, user: null };
 
+  return {
+    token,
+    user: {
+      id: rawUser.id,
+      fullName: rawUser.fullName ?? rawUser.name ?? 'User',
+      email: rawUser.email ?? '',
+      phone: rawUser.phone ?? '',
+      role: (rawUser.roles[0] ?? 'patient') as UserRole,
+    },
+  };
+};
+
+// ────────────────────────────────────────────────
+// Thunks
+// ────────────────────────────────────────────────
+export const login = createAsyncThunk(
+  'auth/login',
+  async (credentials: LoginFormData, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(API_ENDPOINTS.auth.login, credentials);
+       
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Login failed');
+    }
+  }
+);
+
+export const signup = createAsyncThunk(
+  'auth/signup',
+  async (userData: SignUpFormData, { rejectWithValue }) => {
+    try {
+      const { data } = await axios.post(API_ENDPOINTS.auth.register, userData);
+      return data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || 'Signup failed');
+    }
+  }
+);
+
+// ────────────────────────────────────────────────
+// Slice
+// ────────────────────────────────────────────────
 const authSlice = createSlice({
   name: 'auth',
   initialState,
+
   reducers: {
-    initializeAuth: (state) => {
-      if (typeof window !== 'undefined') {
-        const token = localStorage.getItem('token');
-        const savedUser = localStorage.getItem('hms_user');
-        if (token && savedUser) {
-          state.token = token;
-          state.user = JSON.parse(savedUser);
-          state.isAuthenticated = true;
-        }
-      }
-    },
     logout: (state) => {
       state.user = null;
       state.token = null;
       state.isAuthenticated = false;
       state.error = null;
+      state.isLoading = false;
+
       if (typeof window !== 'undefined') {
         localStorage.removeItem('token');
         localStorage.removeItem('hms_user');
         localStorage.removeItem('token_expiry');
       }
     },
-  },
-  extraReducers: (builder) => {
-    const handleAuthSuccess = (state: AuthState, action: PayloadAction<any>) => {
-      state.isLoading = false;
-      state.error = null;
-      const payload = action.payload;
-      const token = payload.token ?? payload.accessToken ?? payload.jwt ?? null;
-      const rawUser = payload.user;
 
-      if (rawUser) {
-        const formattedUser: AuthUser = {
-          id: rawUser.id ?? '',
-          fullName: rawUser.fullName ?? 'User',
-          email: rawUser.email ?? '',
-          phone: rawUser.phone ?? '',
-          role: rawUser.role as UserRole,
-        };
+    initializeAuth: (state) => {
+      if (typeof window === 'undefined') return;
 
-        state.user = formattedUser;
-        state.isAuthenticated = true;
-        state.token = token;
+      const token = localStorage.getItem('token');
+      const savedUser = localStorage.getItem('hms_user');
 
-        if (typeof window !== 'undefined') {
-          if (token) localStorage.setItem('token', token);
-          localStorage.setItem('hms_user', JSON.stringify(formattedUser));
+      if (token && savedUser) {
+        try {
+          state.token = token;
+          state.user = JSON.parse(savedUser);
+          state.isAuthenticated = true;
+        } catch {
+          // silent fail — corrupted storage
         }
       }
-    };
+    },
+  },
 
+  extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (state) => { state.isLoading = true; state.error = null; })
-      .addCase(login.fulfilled, handleAuthSuccess)
+      // ─── Login ────────────────────────────────────────
+      .addCase(login.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(login.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const { token, user } = normalizeAuthResponse(action.payload);
+ 
+        if (user && token) {
+          state.user = user;
+          state.token = token;
+          state.isAuthenticated = true;
+          state.error = null;
+
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+            localStorage.setItem('hms_user', JSON.stringify(user));
+          }
+        }
+      })
       .addCase(login.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message ?? 'Login failed';
+        state.error = (action.payload as string) ?? 'Login failed';
       })
-      .addCase(signup.pending, (state) => { state.isLoading = true; state.error = null; })
-      .addCase(signup.fulfilled, handleAuthSuccess)
+
+      // ─── Signup ───────────────────────────────────────
+      .addCase(signup.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(signup.fulfilled, (state, action) => {
+        state.isLoading = false;
+        const { token, user } = normalizeAuthResponse(action.payload);
+
+        if (user && token) {
+          state.user = user;
+          state.token = token;
+          state.isAuthenticated = true;
+          state.error = null;
+
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('token', token);
+            localStorage.setItem('hms_user', JSON.stringify(user));
+          }
+        }
+      })
       .addCase(signup.rejected, (state, action) => {
         state.isLoading = false;
-        state.error = action.payload?.message ?? 'Signup failed';
+        state.error = (action.payload as string) ?? 'Signup failed';
       });
   },
 });

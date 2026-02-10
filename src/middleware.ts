@@ -6,7 +6,7 @@ const protectedPaths = ['/dashboard', '/appointments', '/patients'];
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  debugger;
+   
   const token = request.cookies.get('hms_auth_token')?.value;
 
   // Check if the current path is protected
@@ -14,20 +14,19 @@ export async function middleware(request: NextRequest) {
 
   if (isProtected) {
     if (!token) {
-        debugger;
+         
       const url = new URL('/login', request.url);
       url.searchParams.set('from', pathname);
       return NextResponse.redirect(url);
     }
 
-    // Optional: Verify JWT
     try {
-        debugger;
+         
       const secret = new TextEncoder().encode(process.env.JWT_SECRET);
       await jwtVerify(token, secret);
       return NextResponse.next();
     } catch (error) {
-        debugger;
+         
       // Token is invalid or expired
       const response = NextResponse.redirect(new URL('/login', request.url));
       response.cookies.delete('hms_auth_token');

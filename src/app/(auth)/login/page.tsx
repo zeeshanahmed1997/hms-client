@@ -33,11 +33,11 @@ export default function LoginPage() {
     dispatch(login({ email, password }))
       .unwrap()
       .then((payload) => {
-        // debugger;
+        //  
         const token = payload.token ?? payload.access_token ?? payload.jwt;
         
         if (token) {
-            // debugger;
+            //  
           Cookies.set('hms_auth_token', token, { 
             expires: 7, 
             path: '/',
@@ -46,7 +46,7 @@ export default function LoginPage() {
           });
         }
         
-        router.push('/dashboard');
+        router.push('/admin');
         router.refresh();
       })
       .catch((err) => {

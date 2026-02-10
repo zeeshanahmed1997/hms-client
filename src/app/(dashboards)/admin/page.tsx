@@ -1,16 +1,16 @@
 'use client';
 
 import React from 'react';
-import { useAppSelector } from '../../redux/hooks';
-import TopNavbar from '../../components/dashboard/TopNavBar';
-import StatCard from '../../components/dashboard/StatCard';
-import RecentAppointments from '../../components/dashboard/RecentAppointments';
-import RevenueChartPlaceholder from '../../components/dashboard/RevenueChartPlaceHolder';
-import Sidebar from '../../components/dashboard/Sidebar';
+import { useAppSelector } from '../../../redux/hooks';
+import TopNavbar from '../../../components/dashboard/TopNavBar';
+import StatCard from '../../../components/dashboard/StatCard';
+import RecentAppointments from '../../../components/dashboard/RecentAppointments';
+import RevenueChartPlaceholder from '../../../components/dashboard/RevenueChartPlaceHolder';
+import Sidebar from '../../../components/dashboard/Sidebar';
 
 export default function DashboardPage() {
   const user = useAppSelector((state) => state.auth.user);
-  
+   
   // 1. Loading Guard: Prevents "guest" default if Redux is still hydrating
   if (!user) {
     return (
@@ -23,7 +23,7 @@ export default function DashboardPage() {
   }
 
   // 2. Normalize role to lowercase to avoid case-sensitivity bugs
-  const role = user?.role[0]?.toLowerCase() || 'guest';
+  const role = user?.role?.toLowerCase() || 'guest';
 
   const renderStats = () => {
     switch (role) {

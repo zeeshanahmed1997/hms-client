@@ -6,6 +6,11 @@
 box-shadow: inset 0 -1px 0 rgba(0,0,0,.1);
     
 }
+.top-nav-bar{
+  position: fixed;
+  top: 0;
+  z-index: 100;
+}
 .dashboard-header{
     font-size: 1.5rem;
     font-weight: 600;
@@ -26,6 +31,8 @@ box-shadow: inset 0 -1px 0 rgba(0,0,0,.1);
   color: #f8fafc;
   box-shadow: 4px 0 25px rgba(0, 0, 0, 0.3);
   z-index: 1000;
+  position: sticky;
+  top: 0;
 }
 
 /* Logo Section */
