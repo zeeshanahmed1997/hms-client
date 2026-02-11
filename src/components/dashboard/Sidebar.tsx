@@ -14,7 +14,7 @@ export default function Sidebar() {
   // 1. Get user data from Redux
   const { user } = useAppSelector((state) => state.auth);
   const userRole = user?.role || 'guest';
-debugger;
+// debugger;
   const handleLogout = (e: React.MouseEvent) => {
     e.preventDefault();
     dispatch(logout());
@@ -34,7 +34,7 @@ debugger;
 
   // 3. Filter items based on the current user's role
   const filteredNavItems = navItems.filter(item => item.roles.includes(userRole.toLowerCase()));
-debugger;
+// debugger;
   return (
     <div className="hms-sidebar-pro d-none d-md-flex flex-column">
       <div className="brand-header p-4">

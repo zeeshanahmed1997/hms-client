@@ -1,5 +1,5 @@
 // src/api/endpoints.ts  (or wherever it lives)
-const BASE_URL =  'https://10.10.3.100:7186';
+const BASE_URL =  'https://localhost:7186';
 
 export const API_ENDPOINTS = {
   auth: {
