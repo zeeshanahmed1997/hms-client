@@ -1,0 +1,61 @@
+.hms-bg-gradient {
+  background: linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%);
+  /* or softer: #f8faff → #eef4ff */
+}
+
+.hms-card {
+  border-radius: 16px !important;
+  background: white;
+  border: 1px solid rgba(0, 123, 255, 0.12) !important;
+}
+
+.bg-gradient-primary {
+  background: linear-gradient(90deg, #0d6efd 0%, #0b5ed7 100%) !important;
+}
+
+.section-title {
+  font-weight: 600;
+  color: #0d6efd;
+  position: relative;
+}
+
+.section-title::after {
+  content: '';
+  position: absolute;
+  bottom: -10px;
+  left: 0;
+  width: 40px;
+  height: 3px;
+  background: #0d6efd;
+  border-radius: 3px;
+}
+
+.input-group-merge .form-control:focus {
+  border-color: #0d6efd;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+}
+
+.avatar-lg {
+  width: 64px;
+  height: 64px;
+}
+
+.hms-icon-circle {
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.btn-primary {
+  background: #0d6efd;
+  border-color: #0d6efd;
+  padding: 0.65rem 1.75rem;
+  font-weight: 500;
+}
+
+.btn-outline-secondary {
+  padding: 0.65rem 1.75rem;
+}

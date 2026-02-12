@@ -3,19 +3,28 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux'; // Fixed: Import useDispatch
 import { useQuery } from '@tanstack/react-query';
-import { fetchUsersApi } from '@/src/api/users';
+import { CreateUserData, fetchUsersApi } from '@/src/api/users';
 import { setAllUsers, User } from '@/src/redux/slices/userSlice';
 import TopNavbar from '../../../../components/dashboard/TopNavBar';
 import Sidebar from '../../../../components/dashboard/Sidebar';
 import { Pencil, Trash, UserPlus, Search } from 'lucide-react';
 import './UserManagement.css';
+import { useRouter } from 'next/navigation';
+import EditUserModal from '@/src/components/dashboard/user-management/EditUserModal';
+const EditUserModalComponent = EditUserModal as unknown as React.FC<{ user: User | null; onClose: () => void }>;
 
 export default function UserManagementPage() {
   const dispatch = useDispatch();
-  
+  const router = useRouter();
+  const [editUserVisible, setEditUserVisible] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const token = useSelector((state: any) => state.auth?.token || state.auth?.user?.token);
   const authUser = useSelector((state: any) => state.auth?.user);
   const [searchTerm, setSearchTerm] = useState('');
+ function AddUserClickHandle()
+ {
+  router.push('/admin/user-management/add');
+ }
 
   const { data: users, isSuccess, isLoading, isError, error } = useQuery<User[], Error>({
     queryKey: ['users', token],
@@ -48,11 +57,19 @@ export default function UserManagementPage() {
     if (!searchTerm) return users;
     const lowerSearch = searchTerm.toLowerCase();
     return users.filter((u) =>
-      u.fullname?.toLowerCase().includes(lowerSearch) ||
+      u.firstName?.toLowerCase().includes(lowerSearch) ||
       u.email?.toLowerCase().includes(lowerSearch)
     );
   }, [users, searchTerm]);
 
+  const handleEditUser = (userId: string) => {
+    setEditUserVisible(true);
+    setSelectedUser(users?.find(u => u.id === userId) || null);
+  }
+  const handleCloseEditModal = () => {
+    setEditUserVisible(false);
+    setSelectedUser(null);
+  }
   if (!authUser && !token) return <div className="p-5 text-center">Loading Access...</div>;
 
   return (
@@ -68,7 +85,7 @@ export default function UserManagementPage() {
                 <h1 className="all-users-heading mb-0">Staff Directory</h1>
                 <p className="text-muted small">Hospital Personnel Management</p>
               </div>
-              <button className="btn btn-create d-flex align-items-center gap-2">
+              <button className="btn btn-create d-flex align-items-center gap-2" onClick={AddUserClickHandle}>
                 <UserPlus size={18} /> Add New Staff
               </button>
             </div>
@@ -123,11 +140,11 @@ export default function UserManagementPage() {
                           <td className="ps-4">
                             <div className="d-flex align-items-center">
                               <div className="avatar-placeholder me-3">
-                                {getInitials(item.fullname)}
+                                {getInitials(item.firstName)}
                               </div>
                               <div>
-                                <div className="fw-bold text-dark">{item.fullname}</div>
-                                <div className="text-muted extra-small">HMS-{item.id}</div>
+                                <div className="fw-bold text-dark">{item.firstName + item.lastName}</div>
+                                {/* <div className="text-muted extra-small">HMS-{item.id}</div> */}
                               </div>
                             </div>
                           </td>
@@ -143,7 +160,7 @@ export default function UserManagementPage() {
                           </td>
                           <td className="pe-4 text-center">
                             <div className="d-flex justify-content-center gap-2">
-                              <button className="btn action-btn btn-edit">
+                              <button className="btn action-btn btn-edit" onClick={() => handleEditUser(item.id)}>
                                 <Pencil size={16} />
                               </button>
                               <button className="btn action-btn btn-delete">
@@ -156,6 +173,11 @@ export default function UserManagementPage() {
                     )}
                   </tbody>
                 </table>
+                {editUserVisible && selectedUser && (
+                <div>Edit User Modal Placeholder
+                <EditUserModalComponent user={selectedUser} onClose={handleCloseEditModal} />
+                </div>
+                )}
               </div>
             </div>
           </div>

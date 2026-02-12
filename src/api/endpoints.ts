@@ -10,5 +10,8 @@ export const API_ENDPOINTS = {
   },
   users:{
     users : `${BASE_URL}/api/User/users`,
+    create : `${BASE_URL}/api/User/user`,
+    update : `${BASE_URL}/api/User/edit`,
+    delete : `${BASE_URL}/api/User/delete`,
   }
 } as const;
