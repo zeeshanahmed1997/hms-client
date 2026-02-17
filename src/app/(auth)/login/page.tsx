@@ -15,13 +15,14 @@ export default function LoginPage() {
   const dispatch = useAppDispatch();
   const router = useRouter();
 
-  const handleSubmit = () => {
+  const handleSubmit = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
     if (!formRef.current) return;
 
     setError('');
     const formData = new FormData(formRef.current);
-    const email = (formData.get('email') as string | null)?.trim() ?? '';
-    const password = formData.get('password') as string | null ?? '';
+    const email = (formData.get('email') as string)?.trim() ?? '';
+    const password = (formData.get('password') as string) ?? '';
 
     if (!email || !password) {
       setError('Please enter your email and password');
@@ -30,31 +31,50 @@ export default function LoginPage() {
 
     setIsLoading(true);
 
-    dispatch(login({ email, password }))
-      .unwrap()
-      .then((payload) => {
-        //  
-        const token = payload.token ?? payload.access_token ?? payload.jwt;
-        
-        if (token) {
-            //  
-          Cookies.set('hms_auth_token', token, { 
-            expires: 7, 
-            path: '/',
-            sameSite: 'lax',
-            secure: process.env.NODE_ENV === 'production'
-          });
-        }
-        
-        router.push('/admin');
-        router.refresh();
-      })
-      .catch((err) => {
-        setError(err.message || 'Invalid credentials. Please try again.');
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
+    try {
+      const payload = await dispatch(login({ email, password })).unwrap();
+
+      const token = payload.token ?? payload.access_token ?? payload.jwt;
+
+      if (token) {
+        Cookies.set('hms_auth_token', token, {
+          expires: 7,
+          path: '/',
+          sameSite: 'lax',
+          secure: process.env.NODE_ENV === 'production',
+        });
+      }
+
+      // Role extraction – make it very defensive
+      const rawRole = payload.role ?? payload.user?.role ?? 'unknown';
+      const role = String(rawRole).toLowerCase().trim();
+
+      console.log('[Login] Raw role from API:', rawRole);
+      console.log('[Login] Cleaned role:', role);
+
+      let redirectPath = '/';
+debugger
+      if (role === 'admin') {
+        redirectPath = '/admin';
+      } else if (role === 'doctor') {
+        redirectPath = '/doctor';
+      } else if (role === 'patient') {
+        redirectPath = '/patient';
+      }
+
+      console.log('[Login] Redirecting to:', redirectPath);
+
+      // Force navigation + add small delay in case of hydration race
+      setTimeout(() => {
+        router.push(redirectPath);
+        router.refresh(); // helps in some edge cases with middleware + client navigation
+      }, 100);
+    } catch (err: any) {
+      console.error('[Login] Error:', err);
+      setError(err?.message || 'Invalid credentials. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -62,20 +82,14 @@ export default function LoginPage() {
       <div className="w-full max-w-md space-y-8">
         <div className="bg-white shadow-2xl rounded-2xl overflow-hidden border border-gray-100">
           <div className="bg-gradient-to-r from-blue-600 to-indigo-600 px-8 py-10 text-center">
-            <h1 className="text-3xl font-bold text-white tracking-tight">
-              MediCare HMS
-            </h1>
-            <p className="mt-2 text-blue-100/90 text-base font-medium">
-              Hospital Management System
-            </p>
+            <h1 className="text-3xl font-bold text-white tracking-tight">MediCare HMS</h1>
+            <p className="mt-2 text-blue-100/90 text-base font-medium">Hospital Management System</p>
           </div>
 
           <div className="px-8 py-10">
-            <h2 className="text-2xl font-semibold text-gray-800 text-center mb-8">
-              Secure Login
-            </h2>
+            <h2 className="text-2xl font-semibold text-gray-800 text-center mb-8">Secure Login</h2>
 
-            <form ref={formRef} className="space-y-6">
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-6">
               <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1.5">
                   Email address
@@ -114,16 +128,24 @@ export default function LoginPage() {
 
               <div>
                 <button
-                  type="button"
-                  onClick={handleSubmit}
+                  type="submit"
                   disabled={isLoading}
                   className="w-full flex justify-center py-3.5 px-4 border border-transparent rounded-lg shadow-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 font-medium transition-all duration-200 disabled:opacity-60 disabled:cursor-not-allowed"
                 >
                   {isLoading ? (
                     <>
-                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <svg
+                        className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                        xmlns="http://www.w3.org/2000/svg"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
+                        <path
+                          className="opacity-75"
+                          fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                        />
                       </svg>
                       Signing in...
                     </>
@@ -134,6 +156,7 @@ export default function LoginPage() {
               </div>
             </form>
 
+            {/* rest of your UI (links, etc.) remains the same */}
             <div className="mt-8 space-y-4 text-center text-sm">
               <div className="flex items-center justify-center gap-6">
                 <Link href="/forgot-password" className="font-medium text-blue-600 hover:text-blue-500 transition-colors">
@@ -147,7 +170,10 @@ export default function LoginPage() {
 
               <div className="pt-4 border-t border-gray-200">
                 <p className="text-gray-600 mb-3">New staff / patient registration?</p>
-                <Link href="/signup" className="inline-flex items-center justify-center w-full py-3 px-4 border border-blue-600 rounded-lg text-blue-600 font-medium hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200">
+                <Link
+                  href="/signup"
+                  className="inline-flex items-center justify-center w-full py-3 px-4 border border-blue-600 rounded-lg text-blue-600 font-medium hover:bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200"
+                >
                   Create New Account
                 </Link>
               </div>

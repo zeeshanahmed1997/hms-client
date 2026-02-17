@@ -25,7 +25,7 @@ box-shadow: inset 0 -1px 0 rgba(0,0,0,.1);
 /* SideBar */
 /* Sidebar Container: Deep Gradient */
 .hms-sidebar-pro {
-  width: 280px;
+  width: auto;
   height: 100vh;
   background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
   color: #f8fafc;
@@ -140,3 +140,226 @@ box-shadow: inset 0 -1px 0 rgba(0,0,0,.1);
 }
 
 .logout-btn:hover { opacity: 0.9; transform: translateY(-1px); }
+
+
+/* topbar */
+
+
+.top-navbar {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  height: 68px;
+  background: white;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.25s ease;
+}
+
+.top-navbar.scrolled {
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  backdrop-filter: blur(8px);
+}
+
+.top-navbar-container {
+  height: 100%;
+  max-width: 100%;
+  padding: 0 1.5rem;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Left side */
+.system-status {
+  font-size: 0.875rem;
+  color: #64748b;
+}
+
+.status-dot {
+  width: 9px;
+  height: 9px;
+  background: #10b981;
+  border-radius: 50%;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.3);
+  animation: pulse 2s infinite;
+}
+
+.status-live {
+  color: #10b981;
+  font-weight: 600;
+}
+
+@keyframes pulse {
+  0% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5); }
+  70% { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+
+/* Right side */
+.top-navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+}
+
+.clock-container {
+  font-size: 0.95rem;
+  color: #475569;
+}
+
+.clock-time {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.clock-zone {
+  color: #94a3b8;
+  font-size: 0.8rem;
+}
+
+/* Icons & Buttons */
+.nav-icon-btn {
+  position: relative;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #64748b;
+  background: transparent;
+  border: none;
+  border-radius: 10px;
+  transition: all 0.2s ease;
+}
+
+.nav-icon-btn:hover {
+  background: #f1f5f9;
+  color: #1e293b;
+}
+
+.notification-count {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  font-size: 10px;
+  font-weight: bold;
+  color: white;
+  background: #ef4444;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 2px white;
+}
+
+.divider-vertical {
+  width: 1px;
+  height: 24px;
+  background: #e2e8f0;
+}
+
+/* Profile */
+.profile-button {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 10px;
+  border: none;
+  background: transparent;
+  border-radius: 12px;
+  transition: background 0.2s;
+}
+
+.profile-button:hover {
+  background: #f1f5f9;
+}
+
+.avatar-container {
+  position: relative;
+}
+
+.avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #3b82f6, #60a5fa);
+  color: white;
+  font-weight: 600;
+  font-size: 17px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-indicator {
+  position: absolute;
+  bottom: 2px;
+  right: 2px;
+  width: 12px;
+  height: 12px;
+  background: #10b981;
+  border: 2.5px solid white;
+  border-radius: 50%;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.user-name {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #1e293b;
+  line-height: 1.1;
+}
+
+.user-role {
+  font-size: 0.78rem;
+  color: #64748b;
+}
+
+.chevron {
+  color: #94a3b8;
+}
+
+/* Dropdown */
+.dropdown-menu {
+  border: none;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.12);
+  min-width: 210px;
+  padding: 6px 0;
+}
+
+.dropdown-header {
+  padding: 8px 16px;
+  font-size: 0.82rem;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 16px;
+  font-size: 0.92rem;
+  color: #1e293b;
+  transition: all 0.15s;
+}
+
+.dropdown-item:hover {
+  background: #eff6ff;
+  color: #1d4ed8;
+}
+
+.dropdown-item.text-danger:hover {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.dropdown-divider {
+  margin: 6px 12px;
+}

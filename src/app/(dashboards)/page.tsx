@@ -1,0 +1,100 @@
+'use client';
+
+import React from 'react';
+import { useAppSelector } from '../../redux/hooks';
+import StatCard from '../../components/dashboard/StatCard';
+import RecentAppointments from '../../components/dashboard/RecentAppointments';
+import RevenueChartPlaceholder from '../../components/dashboard/RevenueChartPlaceHolder';
+
+export default function AdminDashboardPage() {
+  const user = useAppSelector((state) => state.auth.user);
+
+  if (!user) {
+    return (
+      <div className="d-flex justify-content-center align-items-center vh-100">
+        <div className="spinner-border text-primary" role="status">
+          <span className="visually-hidden">Loading...</span>
+        </div>
+      </div>
+    );
+  }
+
+  const role = user?.role?.toLowerCase() || 'guest';
+
+  if (role !== 'admin') {
+    return (
+      <div className="container mt-5">
+        <div className="alert alert-danger">
+          Access denied. This page is for administrators only.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      {/* Inject Bootstrap and FontAwesome */}
+      <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" />
+
+      <style jsx global>{`
+        body { background-color: #f5f7ff; font-family: 'Segoe UI', sans-serif; }
+        .card-stat { transition: transform 0.2s; border: none; border-radius: 12px; }
+        .card-stat:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.12) !important; }
+      `}</style>
+
+      {/* Main Page Content - No Wrapper flex needed here anymore */}
+      <div className="container-fluid p-0">
+        {/* Statistics Grid */}
+        <div className="row g-4 mb-4">
+          <div className="col-12 col-sm-6 col-xl-3">
+            <StatCard 
+              title="Total Patients" 
+              value="1,248" 
+              icon="fa-users" 
+              color="primary" 
+              trend={{ text: "12% this month", isPositive: true }} 
+            />
+          </div>
+          <div className="col-12 col-sm-6 col-xl-3">
+            <StatCard 
+              title="Active Doctors" 
+              value="18" 
+              icon="fa-user-md" 
+              color="info" 
+              footer="All on duty today" 
+            />
+          </div>
+          <div className="col-12 col-sm-6 col-xl-3">
+            <StatCard 
+              title="Revenue" 
+              value="₹2.4M" 
+              icon="fa-chart-line" 
+              color="success" 
+              trend={{ text: "+15% vs last month", isPositive: true }} 
+            />
+          </div>
+          <div className="col-12 col-sm-6 col-xl-3">
+            <StatCard 
+              title="Pending Bills" 
+              value="₹67,890" 
+              icon="fa-money-bill-wave" 
+              color="warning" 
+              trend={{ text: "High priority", isPositive: false }} 
+            />
+          </div>
+        </div>
+
+        {/* Tables and Charts Section */}
+        <div className="row">
+          <div className="col-12 mb-4">
+            <RecentAppointments />
+          </div>
+          <div className="col-12">
+            <RevenueChartPlaceholder />
+          </div>
+        </div>
+      </div>
+    </>
+  );
+}

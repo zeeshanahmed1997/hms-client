@@ -13,7 +13,8 @@
 
 .management-container {
     background-color: var(--hms-bg);
-    min-height: 100vh;
+    min-height: 100%;
+    width: 100vw;
     font-family: 'Inter', -apple-system, sans-serif;
 }
 
@@ -33,6 +34,9 @@
     border-radius: 12px;
     box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
     width: 100% !important;
+    display: flex;
+    flex-direction: start !important;
+    align-items: start !important;
 }
 
 /* Search Bar Styling */

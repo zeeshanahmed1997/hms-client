@@ -88,18 +88,15 @@ export default function UserManagementPage() {
   }
 
   return (
-    <div className="management-container w-100">
+    <div className="management-container">
       <link
         href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
         rel="stylesheet"
       />
 
       <div className="d-flex w-100">
-        <Sidebar />
 
         <div className="flex-grow-1 min-vh-100 d-flex flex-column">
-          <TopNavbar />
-
           <div className="container-fluid py-4 flex-grow-1">
             {/* Header */}
             <div className="d-flex justify-content-between align-items-center mb-4 px-2">
