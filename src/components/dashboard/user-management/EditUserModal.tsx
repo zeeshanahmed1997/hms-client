@@ -2,8 +2,10 @@ import { useRouter } from "next/navigation";
 import { useSelector } from "react-redux";
 import { ChangeEvent, FormEvent, useState } from "react";
 import { User } from "@/src/redux/slices/userSlice";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateUserApi } from "@/src/api/users";
+// import { error } from "console";
+import { on } from "events";
 
 export interface CreateUserData {
   firstName: string;
@@ -20,7 +22,7 @@ export interface CreateUserData {
 export default function EditUserModal({ user, onClose }: { user: User | null; onClose: () => void; }) {
   const router = useRouter();
   const token = useSelector((state: any) => state.auth?.token || state.auth?.user?.token);
-
+  const queryClient = useQueryClient();
   const [formData, setFormData] = useState<CreateUserData>({
     firstName: user?.firstName || "",
     lastName: user?.lastName || "",
@@ -38,9 +40,14 @@ export default function EditUserModal({ user, onClose }: { user: User | null; on
       return updateUserApi(token!, user!.id, { ...data, password: data.password ?? "" });
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['users', token] });
       onClose();
-      router.refresh();
     },
+    onError :()=>{
+      alert("Failed to update user. Please try again.");
+      onClose();
+    }
+
   });
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
