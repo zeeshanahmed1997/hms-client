@@ -9,7 +9,7 @@ import TopNavbar from '../../../../components/dashboard/TopNavBar';
 import Sidebar from '../../../../components/dashboard/Sidebar';
 import { Pencil, Trash, UserPlus, Search } from 'lucide-react';
 import { useRouter } from 'next/navigation';
-import EditUserModal from '@/src/components/dashboard/user-management/EditUserModal';
+import EditUserModal from '@/src/components/modals/EditUserModal';
 import './UserManagement.css';
 
 export default function UserManagementPage() {
@@ -81,8 +81,6 @@ export default function UserManagementPage() {
   const handleCloseEditModal = () => {
     setEditUserVisible(false);
     setSelectedUser(null);
-    // Optional: invalidate here too if edit modal saves changes
-    // queryClient.invalidateQueries({ queryKey: ['users', token] });
   };
 
   if (!authUser && !token) {
