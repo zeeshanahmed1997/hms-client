@@ -63,7 +63,7 @@ debugger
       }
 
       console.log('[Login] Redirecting to:', redirectPath);
-
+debugger
       // Force navigation + add small delay in case of hydration race
       setTimeout(() => {
         router.push(redirectPath);

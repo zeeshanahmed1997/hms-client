@@ -3,232 +3,157 @@
 import React, { useState, useMemo } from 'react';
 import { useSelector } from 'react-redux';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { fetchUsersApi, deleteUserApi } from '@/src/api/users'; // assuming deleteUserApi exists
-import { User } from '@/src/redux/slices/userSlice'; // keep type import
-import TopNavbar from '../../../../components/dashboard/TopNavBar';
-import Sidebar from '../../../../components/dashboard/Sidebar';
-import { Pencil, Trash, UserPlus, Search } from 'lucide-react';
+import { fetchUsersApi, deleteUserApi } from '@/src/api/users'; 
+import { 
+  Users, Search, UserPlus, Edit3, Trash2, Mail, 
+  Fingerprint, ShieldCheck, Activity, Globe, ArrowUpRight
+} from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import EditUserModal from '@/src/components/modals/EditUserModal';
-import './UserManagement.css';
+import { toast } from 'react-hot-toast';
 
 export default function UserManagementPage() {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [editUserVisible, setEditUserVisible] = useState(false);
 
   const token = useSelector((state: any) => state.auth?.token || state.auth?.user?.token);
-  const authUser = useSelector((state: any) => state.auth?.user);
 
-  const [searchTerm, setSearchTerm] = useState('');
-  const [editUserVisible, setEditUserVisible] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
-
-  // Fetch users
-  const {
-    data: users = [],
-    isLoading,
-    isError,
-    error,
-  } = useQuery<User[], Error>({
+  const { data: users = [], isLoading } = useQuery({
     queryKey: ['users', token],
     queryFn: () => fetchUsersApi(token!),
     enabled: !!token,
-    staleTime: 2 * 60 * 1000, // 2 minutes
   });
 
-  // Delete mutation
-  const { mutate: deleteUser, isPending: isDeleting } = useMutation({
+  const deleteMutation = useMutation({
     mutationFn: (userId: string) => deleteUserApi(token!, userId),
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['users', token] });
-      alert('User deleted successfully.');
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+      toast.success('Registry Updated Successfully');
     },
-    onError: (err) => {
-      console.error('Delete failed:', err);
-      alert('Failed to delete user. Please try again.');
-    },
+    onError: (err: any) => toast.error(err.message)
   });
 
   const filteredUsers = useMemo(() => {
-    if (!searchTerm.trim()) return users;
-    const lower = searchTerm.toLowerCase();
-    return users.filter(
-      (u) =>
-        `${u.firstName || ''} ${u.lastName || ''}`.toLowerCase().includes(lower) ||
-        u.email?.toLowerCase().includes(lower)
+    return users.filter((u: any) => 
+      `${u.firstName} ${u.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
     );
   }, [users, searchTerm]);
 
-  // Handlers
-  const handleAddUser = () => {
-    router.push('/admin/user-management/add');
-  };
-
-  const handleEditUser = (user: User) => {
-    setSelectedUser(user);
-    setEditUserVisible(true);
-  };
-
-  const handleDeleteUser = (userId: string, name?: string) => {
-    const confirmed = window.confirm(
-      `Are you sure you want to delete ${name || 'this user'}? This cannot be undone.`
-    );
-    if (confirmed) {
-      deleteUser(userId);
-    }
-  };
-
-  const handleCloseEditModal = () => {
-    setEditUserVisible(false);
-    setSelectedUser(null);
-  };
-
-  if (!authUser && !token) {
-    return <div className="p-5 text-center">Loading access...</div>;
-  }
-
   return (
-    <div className="management-container">
-      <link
-        href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-        rel="stylesheet"
-      />
-
-      <div className="d-flex w-100">
-
-        <div className="flex-grow-1 min-vh-100 d-flex flex-column">
-          <div className="container-fluid py-4 flex-grow-1">
-            {/* Header */}
-            <div className="d-flex justify-content-between align-items-center mb-4 px-2">
-              <div>
-                <h1 className="all-users-heading mb-0">Staff Directory</h1>
-                <p className="text-muted small">Hospital Personnel Management</p>
-              </div>
-              <button
-                className="btn btn-create d-flex align-items-center gap-2"
-                onClick={handleAddUser}
-              >
-                <UserPlus size={18} /> Add New Staff
-              </button>
+    <div className="min-h-screen bg-[#F8FAFC] p-6 font-sans text-slate-950 antialiased">
+      <div className="max-w-full mx-auto space-y-6">
+        
+        {/* Expanded Glass Header */}
+        <div className="flex flex-col xl:flex-row xl:items-center justify-between gap-6 bg-white p-6 rounded-[2rem] border border-slate-200 shadow-xl shadow-slate-200/50">
+          <div className="flex items-center gap-5 border-r border-slate-100 pr-10">
+            <div className="h-14 w-14 bg-slate-950 rounded-2xl flex items-center justify-center text-white shadow-2xl shadow-slate-400 rotate-3 group-hover:rotate-0 transition-transform">
+              <Users size={28} />
             </div>
-
-            {/* Search & stats */}
-            <div className="card user-card mb-4 w-100">
-              <div className="card-body d-flex justify-content-end align-items-center gap-3 flex-wrap">
-                <div className="search-wrapper position-relative flex-grow-1 me-4">
-                  <Search className="search-icon" size={18} />
-                  <input
-                    type="text"
-                    className="form-control user-search-bar w-100 ps-5"
-                    placeholder="Search by name or email..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div className="text-muted small text-nowrap">
-                  <strong>{filteredUsers.length}</strong> Records Found
-                </div>
-              </div>
+            <div>
+              <h1 className="text-2xl font-black uppercase tracking-tighter leading-none italic">Personnel_Master_v2</h1>
+              <p className="text-[10px] font-black text-blue-600 mt-2 uppercase tracking-[0.3em] flex items-center gap-2">
+                <Globe size={12}/> Global Hospital Node
+              </p>
             </div>
+          </div>
 
-            {/* Error */}
-            {isError && (
-              <div className="alert alert-danger shadow-sm border-0">
-                {error?.message || 'Failed to load users'}
-              </div>
-            )}
+          {/* Expanded Search Field */}
+          <div className="flex-1 max-w-3xl relative group">
+            <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-blue-600 transition-colors" size={20} />
+            <input 
+              className="w-full bg-slate-50 border-2 border-slate-100 py-4 pl-16 pr-6 rounded-2xl text-[13px] font-bold text-slate-950 outline-none focus:border-blue-500 focus:bg-white transition-all shadow-inner uppercase tracking-tight"
+              placeholder="Query Identity by Name, Role, or System Hash..."
+              onChange={(e) => setSearchTerm(e.target.value)}
+            />
+          </div>
 
-            {/* Table */}
-            <div className="card user-card overflow-hidden w-100 border-0 shadow-sm">
-              <div className="table-responsive w-100">
-                <table className="table table-hover align-middle mb-0 w-100">
-                  <thead>
-                    <tr>
-                      <th className="ps-4" style={{ width: '30%' }}>Full Name</th>
-                      <th style={{ width: '30%' }}>Email Address</th>
-                      <th style={{ width: '15%' }}>Role</th>
-                      <th style={{ width: '15%' }}>Status</th>
-                      <th className="text-center pe-4" style={{ width: '10%' }}>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {isLoading ? (
-                      <tr>
-                        <td colSpan={5} className="text-center py-5">
-                          <div className="spinner-border text-primary" role="status" />
-                        </td>
-                      </tr>
-                    ) : (
-                      filteredUsers.map((user) => (
-                        <tr key={user.id}>
-                          <td className="ps-4">
-                            <div className="d-flex align-items-center">
-                              <div className="avatar-placeholder me-3">
-                                {user.firstName?.[0]?.toUpperCase() || 'U'}
-                              </div>
-                              <div>
-                                <div className="fw-bold text-dark">
-                                  {user.firstName} {user.lastName}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td>
-                            <span className="text-secondary">{user.email}</span>
-                          </td>
-                          <td>
-                            <span className={`role-badge ${getRoleBadgeClass(user.role)}`}>
-                              {user.role}
-                            </span>
-                          </td>
-                          <td>
-                            <span className="status-dot" />
-                            <span className="small text-muted">Active</span>
-                          </td>
-                          <td className="pe-4 text-center">
-                            <div className="d-flex justify-content-center gap-2">
-                              <button
-                                className="btn action-btn btn-edit"
-                                onClick={() => handleEditUser(user)}
-                                disabled={isDeleting}
-                              >
-                                <Pencil size={16} />
-                              </button>
-                              <button
-                                className="btn action-btn btn-delete"
-                                onClick={() =>
-                                  handleDeleteUser(user.id, `${user.firstName} ${user.lastName}`)
-                                }
-                                disabled={isDeleting}
-                              >
-                                <Trash size={16} />
-                              </button>
-                            </div>
-                          </td>
-                        </tr>
-                      ))
-                    )}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+          <button 
+            onClick={() => router.push('/admin/user-management/add')}
+            className="bg-blue-600 hover:bg-slate-950 text-white px-10 py-4 rounded-2xl text-xs font-black transition-all flex items-center gap-3 uppercase shadow-lg shadow-blue-200 active:scale-95"
+          >
+            <UserPlus size={18} /> Initialize_New_Entry
+          </button>
+        </div>
+
+        {/* The Wide Ledger Container */}
+        <div className="bg-white border border-slate-200 rounded-[2.5rem] shadow-2xl shadow-slate-200/40 overflow-hidden">
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse">
+              <thead>
+                <tr className="bg-slate-50 border-b border-slate-100 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                  <th className="px-10 py-6 text-left">Identity_Hash</th>
+                  <th className="px-10 py-6 text-left">Personnel_Name</th>
+                  <th className="px-10 py-6 text-left">Security_Tier</th>
+                  <th className="px-10 py-6 text-left">Communication_Node</th>
+                  <th className="px-10 py-6 text-right">System_Controls</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-50">
+                {filteredUsers.map((user: any) => (
+                  <tr key={user.id} className="hover:bg-blue-50/40 transition-all group">
+                    <td className="px-10 py-5">
+                      <div className="flex items-center gap-2 text-[10px] font-mono font-black text-slate-300 group-hover:text-blue-500 transition-colors">
+                        <Fingerprint size={14} />
+                        {String(user.id).slice(-10).toUpperCase()}
+                      </div>
+                    </td>
+                    <td className="px-10 py-5">
+                      <div className="flex items-center gap-4">
+                        <div className="h-10 w-10 rounded-xl bg-slate-900 text-white flex items-center justify-center text-[11px] font-black uppercase shadow-lg group-hover:scale-110 transition-transform">
+                          {user.firstName?.[0]}{user.lastName?.[0]}
+                        </div>
+                        <span className="text-[15px] font-black text-slate-950 uppercase tracking-tight truncate max-w-[250px]" title={`${user.firstName} ${user.lastName}`}>
+                          {user.firstName} {user.lastName}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-10 py-5">
+                      <div className="flex items-center gap-2">
+                        <span className={`px-4 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border-2 ${
+                          user.role?.toLowerCase().includes('admin') 
+                          ? 'bg-purple-50 text-purple-700 border-purple-100' 
+                          : 'bg-emerald-50 text-emerald-700 border-emerald-100'
+                        }`}>
+                          {user.role}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-10 py-5">
+                      <div className="flex items-center gap-3 text-xs font-bold text-slate-500 group-hover:text-slate-950 transition-colors">
+                        <Mail size={14} className="text-blue-400" />
+                        {user.email}
+                      </div>
+                    </td>
+                    <td className="px-10 py-5">
+                      <div className="flex items-center justify-end gap-3">
+                        <button 
+                          onClick={() => { setSelectedUser(user); setEditUserVisible(true); }}
+                          className="flex items-center gap-2 bg-white border-2 border-slate-200 hover:border-blue-600 hover:text-blue-600 px-5 py-2 rounded-xl text-[10px] font-black uppercase transition-all shadow-sm"
+                        >
+                          <Edit3 size={14} /> Edit_Data
+                        </button>
+                        <button 
+                          onClick={() => { if(confirm(`PURGE RECORD: ${user.firstName}?`)) deleteMutation.mutate(user.id) }}
+                          className="p-3 text-slate-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-all"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
 
-      {/* Modal – render conditionally */}
       {editUserVisible && selectedUser && (
-        <EditUserModal user={selectedUser} onClose={handleCloseEditModal} />
+        <EditUserModal user={selectedUser} onClose={() => setEditUserVisible(false)} />
       )}
     </div>
   );
-}
-
-// Keep your helper (moved outside)
-function getRoleBadgeClass(role: string = '') {
-  const r = role?.toLowerCase();
-  if (r?.includes('admin')) return 'badge-admin';
-  if (r?.includes('doctor')) return 'badge-doctor';
-  if (r?.includes('nurse')) return 'badge-nurse';
-  return 'badge-staff';
 }

@@ -1,25 +1,38 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { jwtVerify, JWTPayload } from 'jose';
+import { jwtVerify, JWTPayload, errors as joseErrors } from 'jose';
 
 interface CustomJWTPayload extends JWTPayload {
-  // Microsoft/ASP.NET Identity claim for role
   'http://schemas.microsoft.com/ws/2008/06/identity/claims/role'?: string;
   role?: string;
   user?: {
     role?: string;
   };
   roles?: string[];
-  // Add other claims you might need
   email?: string;
   fullName?: string;
   sub?: string;
 }
 
-const SECRET = new TextEncoder().encode(process.env.JWT_SECRET!);
+let SECRET: Uint8Array;
+
+{
+  const secretStr = process.env.JWT_SECRET;
+
+  if (!secretStr || secretStr.trim() === '') {
+    console.error('CRITICAL: JWT_SECRET is missing or empty in environment variables.');
+    SECRET = new Uint8Array(0);
+  } else {
+    const trimmed = secretStr.trim();
+    if (trimmed.length < 32) {
+      console.warn(`[JWT Warning] Secret is short (${trimmed.length} chars).`);
+    }
+    SECRET = new TextEncoder().encode(trimmed);
+  }
+}
 
 const ROLE_BASE_PATHS: Record<string, string> = {
-  admin: '/admin',
-  doctor: '/doctor',
+  admin:   '/admin',
+  doctor:  '/doctor',
   patient: '/patient',
 };
 
@@ -47,14 +60,17 @@ export async function middleware(request: NextRequest) {
   }
 
   try {
+    if (SECRET.length === 0) {
+      throw new Error('JWT secret is empty');
+    }
+
     const { payload } = await jwtVerify<CustomJWTPayload>(token, SECRET);
 
-    // Extract role — no `as any` needed anymore
     let rawRole =
       payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'] ||
       payload.role ||
       payload.user?.role ||
-      payload.roles?.[0] ||
+      (payload.roles && payload.roles[0]) ||
       'guest';
 
     const role = String(rawRole).toLowerCase().trim();
@@ -66,17 +82,15 @@ export async function middleware(request: NextRequest) {
       request: { headers },
     });
 
-    // Protect role-specific paths
     for (const [allowedRole, basePath] of Object.entries(ROLE_BASE_PATHS)) {
       if (pathname === basePath || pathname.startsWith(`${basePath}/`)) {
         if (role !== allowedRole) {
-          const redirectTo = role !== 'guest' ? `/${role}` : '/login';
-          return NextResponse.redirect(new URL(redirectTo, request.url));
+          const redirectPath = role !== 'guest' ? `/${role}` : '/login';
+          return NextResponse.redirect(new URL(redirectPath, request.url));
         }
       }
     }
 
-    // Redirect from root to user dashboard
     if (pathname === '/') {
       if (role !== 'guest' && role in ROLE_BASE_PATHS) {
         return NextResponse.redirect(new URL(`/${role}`, request.url));
@@ -87,15 +101,13 @@ export async function middleware(request: NextRequest) {
     }
 
     return response;
-  } catch (error) {
-    const response = NextResponse.redirect(new URL('/login', request.url));
-    // response.cookies.delete('hms_auth_token', { path: '/' });
-    return response;
+  } catch (err) {
+    return NextResponse.redirect(new URL('/login', request.url));
   }
 }
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|api/|favicon.ico).*)',
+    '/((?!_next/static|_next/image|api/|favicon.ico|.*\\..*).*)',
   ],
 };

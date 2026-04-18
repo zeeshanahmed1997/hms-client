@@ -2,6 +2,7 @@
 
 import React from 'react';
 import { useAppSelector } from '../../../redux/hooks';
+import { useAdminStats } from '../../../api/dashboard';
 import TopNavbar from '../../../components/dashboard/TopNavBar';
 import StatCard from '../../../components/dashboard/StatCard';
 import RecentAppointments from '../../../components/dashboard/RecentAppointments';
@@ -10,6 +11,9 @@ import Sidebar from '../../../components/dashboard/Sidebar';
 
 export default function AdminDashboardPage() {
   const user = useAppSelector((state) => state.auth.user);
+  const token = useAppSelector((state) => state.auth.token);
+  // Fetch real-time stats from C# Backend
+  const { data: stats, isLoading, isError } = useAdminStats(token);
 
   if (!user) {
     return (
@@ -26,9 +30,7 @@ export default function AdminDashboardPage() {
   if (role !== 'admin') {
     return (
       <div className="container mt-5">
-        <div className="alert alert-danger">
-          Access denied. This page is for administrators only.
-        </div>
+        <div className="alert alert-danger">Access denied. This page is for administrators only.</div>
       </div>
     );
   }
@@ -45,48 +47,54 @@ export default function AdminDashboardPage() {
       `}</style>
 
       <div className="d-flex justify-content-start align-items-stretch" style={{ minHeight: '100vh' }}>
-        {/* <Sidebar /> */}
         <div className="flex-grow-1">
-          {/* <TopNavbar /> */}
           <div className="container-fluid px-4 py-4">
-            <div className="row g-4 mb-5">
-              <div className="col-12 col-sm-6 col-lg-3">
-                <StatCard 
-                  title="Total Patients" 
-                  value="1,248" 
-                  icon="fa-users" 
-                  color="primary" 
-                  trend={{ text: "12% this month", isPositive: true }} 
-                />
+            
+            {/* Show loading state for stats */}
+            {isLoading ? (
+              <div className="text-center p-5 font-bold text-muted">SYNCING_DATABASE_STATS...</div>
+            ) : isError ? (
+              <div className="alert alert-warning">Failed to load real-time stats. Showing cached data.</div>
+            ) : (
+              <div className="row g-4 mb-5">
+                <div className="col-12 col-sm-6 col-lg-3">
+                  <StatCard 
+                    title="Total Patients" 
+                    value={stats?.totalPatients?.toLocaleString() || "0"} 
+                    icon="fa-users" 
+                    color="primary" 
+                    trend={{ text: "Live from DB", isPositive: true }} 
+                  />
+                </div>
+                <div className="col-12 col-sm-6 col-lg-3">
+                  <StatCard 
+                    title="Active Doctors" 
+                    value={stats?.activeDoctors?.toString() || "0"} 
+                    icon="fa-user-md" 
+                    color="info" 
+                    footer="On Duty & Active" 
+                  />
+                </div>
+                <div className="col-12 col-sm-6 col-lg-3">
+                  <StatCard 
+                    title="Revenue" 
+                    value={`₹${stats?.revenue?.toLocaleString() || "0"}`} 
+                    icon="fa-chart-line" 
+                    color="success" 
+                    trend={{ text: "Total Collected", isPositive: true }} 
+                  />
+                </div>
+                <div className="col-12 col-sm-6 col-lg-3">
+                  <StatCard 
+                    title="Pending Bills" 
+                    value={`₹${stats?.pendingBills?.toLocaleString() || "0"}`} 
+                    icon="fa-money-bill-wave" 
+                    color="warning" 
+                    trend={{ text: "Unpaid Invoices", isPositive: false }} 
+                  />
+                </div>
               </div>
-              <div className="col-12 col-sm-6 col-lg-3">
-                <StatCard 
-                  title="Active Doctors" 
-                  value="18" 
-                  icon="fa-user-md" 
-                  color="info" 
-                  footer="All on duty today" 
-                />
-              </div>
-              <div className="col-12 col-sm-6 col-lg-3">
-                <StatCard 
-                  title="Revenue" 
-                  value="₹2.4M" 
-                  icon="fa-chart-line" 
-                  color="success" 
-                  trend={{ text: "+15% vs last month", isPositive: true }} 
-                />
-              </div>
-              <div className="col-12 col-sm-6 col-lg-3">
-                <StatCard 
-                  title="Pending Bills" 
-                  value="₹67,890" 
-                  icon="fa-money-bill-wave" 
-                  color="warning" 
-                  trend={{ text: "High priority", isPositive: false }} 
-                />
-              </div>
-            </div>
+            )}
 
             <RecentAppointments />
             <RevenueChartPlaceholder />
