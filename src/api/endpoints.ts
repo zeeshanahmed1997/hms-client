@@ -63,3 +63,18 @@ medicines: {
   stock: `${BASE_URL}/api/Medicines/stock`,                 // PATCH for stock update
 },
 } as const;
+
+
+
+
+
+// # API Configuration
+// NEXT_PUBLIC_API_URL=https://localhost:7186
+
+// # Authentication (If using NextAuth.js or similar)
+// NEXTAUTH_URL=http://localhost:3000
+// NEXTAUTH_SECRET=YourSuperSecretKeyWithAtLeast32Characters
+
+// # Optional: Environment Name
+// NODE_ENV=development
+// JWT_SECRET=YourSuperSecretKeyWithAtLeast32Characters!!
