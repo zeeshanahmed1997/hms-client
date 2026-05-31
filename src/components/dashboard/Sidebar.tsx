@@ -25,7 +25,7 @@ export default function Sidebar() {
   // 2. Define items with allowed roles
   const navItems = [
     { name: 'Dashboard', href: `/${user?.role.toLowerCase()}`, icon: 'fas fa-chart-line', roles: ['admin', 'doctor', 'patient'] },
-    { name: 'Patients', href: '/patients', icon: 'fas fa-user-injured', roles: ['admin'] },
+    // { name: 'Patients', href: '/patients', icon: 'fas fa-user-injured', roles: ['admin'] },
         { name: 'Patients', href: '/doctor/patients', icon: 'fas fa-user-injured', roles: ['doctor'] },
     { name: 'Appointments', href: '/admin/appointments', icon: 'fas fa-calendar-alt', roles: ['admin'] },
     { name: 'Appointments', href: '/doctor/appointments', icon: 'fas fa-calendar-alt', roles: ['doctor'] },
@@ -33,7 +33,8 @@ export default function Sidebar() {
     // { name: 'Doctors', href: '/doctors', icon: 'fas fa-stethoscope', roles: ['admin'] },
     { name: 'User Management', href: '/admin/user-management', icon: 'fas fa-user', roles: ['admin'] },
     { name: 'Doctor Management', href: '/admin/user-management/doctor', icon: 'fas fa-user-md', roles: ['admin'] },
-    { name: 'Reports', href: '/reports', icon: 'fas fa-notes-medical', roles: ['admin', 'doctor'] },
+{ name: 'Reports', href: '/admin/reports',  icon: 'fas fa-chart-bar', roles: ['admin']  },
+{ name: 'Reports', href: '/doctor/reports', icon: 'fas fa-chart-bar', roles: ['doctor'] },
     // Inside your navItems array
 { 
   name: 'Prescriptions', 
