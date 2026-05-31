@@ -16,6 +16,9 @@ export const API_ENDPOINTS = {
     create : `${BASE_URL}/api/Appointments/create`,
     update : `${BASE_URL}/api/Appointments/update`,
     delete : `${BASE_URL}/api/Appointments/cancel`,
+    generateToken: '/api/appointments/generate-token',
+  updateQueueStatus: '/api/appointments/queue-status',
+  todayQueue: '/api/appointments/today-queue',
   },
   dashboard: {
     adminStats: `${BASE_URL}/api/Dashboard/admin-stats`,
@@ -31,6 +34,10 @@ export const API_ENDPOINTS = {
     doctors : `${BASE_URL}/api/User/doctors`,
     patientsByDoctor : (doctorId: number) => `${BASE_URL}/api/User/patients-by-doctor?doctorId=${doctorId}`,
   },
+  reports: {
+  admin:  `${BASE_URL}/api/reports/admin`,
+  doctor: `${BASE_URL}/api/reports/doctor`,
+},
  // endpoints.ts
 chat: {
     hub: `${BASE_URL}/hubs/chat`,
